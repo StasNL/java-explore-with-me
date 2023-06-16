@@ -12,6 +12,7 @@ public interface AdminUserService {
     UserResponse createUser(NewUser userRequest);
 
     List<UserResponse> getUsersByIds(List<Long> userIds, Integer from, Integer size);
+
     void deleteUser(Long userId);
 
     User getUserById(Long userId);

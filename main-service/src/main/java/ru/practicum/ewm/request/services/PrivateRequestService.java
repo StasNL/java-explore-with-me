@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface PrivateRequestService {
     RequestStatusResponse editStatuses(Long userId, Long eventId, RequestStatusDto requestStatus);
+
     List<RequestResponse> getAllRequestsByUserIdAndEventId(Long userId, Long eventId);
 
     Request createRequest(long userId, long eventId);

@@ -45,7 +45,7 @@ public class PublicEventController {
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public FullEventResponse getFullEvent(@NotNull @PathVariable(value = "id") Long eventId,
-                                          HttpServletRequest httpRequest){
+                                          HttpServletRequest httpRequest) {
         return eventService.getFullEvent(eventId, httpRequest);
     }
 }

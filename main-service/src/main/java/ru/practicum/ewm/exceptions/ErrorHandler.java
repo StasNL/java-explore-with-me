@@ -15,7 +15,7 @@ import static ru.practicum.ewm.utils.Constants.TIME_FORMAT;
 @RestControllerAdvice
 public class ErrorHandler {
 
-    private final DateTimeFormatter DTF = DateTimeFormatter.ofPattern(TIME_FORMAT);
+    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(TIME_FORMAT);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(BAD_REQUEST)
@@ -24,7 +24,7 @@ public class ErrorHandler {
         return ExceptionResponse.builder()
                 .message(exception.getMessage())
                 .reason("Validation failed")
-                .timestamp(LocalDateTime.now().format(DTF))
+                .timestamp(LocalDateTime.now().format(dtf))
                 .status(BAD_REQUEST.name())
                 .build();
     }
@@ -35,7 +35,7 @@ public class ErrorHandler {
         return ExceptionResponse.builder()
                 .message(exception.getMessage())
                 .reason("Bad request to db")
-                .timestamp(LocalDateTime.now().format(DTF))
+                .timestamp(LocalDateTime.now().format(dtf))
                 .status(BAD_REQUEST.name())
                 .build();
     }
@@ -46,7 +46,7 @@ public class ErrorHandler {
         return ExceptionResponse.builder()
                 .message(exception.getMessage())
                 .reason("Bad data")
-                .timestamp(LocalDateTime.now().format(DTF))
+                .timestamp(LocalDateTime.now().format(dtf))
                 .status(CONFLICT.name())
                 .build();
     }

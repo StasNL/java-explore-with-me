@@ -31,7 +31,7 @@ public class PublicCategoryServiceImpl implements PublicCategoryService {
     @Override
     public List<Category> getAllCategories(Integer from, Integer size) {
 
-        Pageable pageable = PageRequest.of(from/size, size);
+        Pageable pageable = PageRequest.of(from / size, size);
 
         return categoryRepository.findAll(pageable).toList();
     }

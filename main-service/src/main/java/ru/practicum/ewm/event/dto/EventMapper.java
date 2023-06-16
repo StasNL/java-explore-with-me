@@ -17,7 +17,7 @@ import static ru.practicum.ewm.event.model.enums.State.PENDING;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EventMapper {
-    private final static DateTimeFormatter dtf = DateTimeFormatter.ofPattern(ru.practicum.ewm.utils.Constants.TIME_FORMAT);
+    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(ru.practicum.ewm.utils.Constants.TIME_FORMAT);
 
     public static Event newEventToEvent(NewEventRequest newEvent, User initiator, Category category, Location location) {
 

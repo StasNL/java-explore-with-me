@@ -30,12 +30,13 @@ import static ru.practicum.ewm.utils.ExceptionMessages.*;
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Transactional
-public class PrivateRequestServiceImpl implements PrivateRequestService{
+public class PrivateRequestServiceImpl implements PrivateRequestService {
 
     private final EventRepository eventRepository;
     private final RequestRepository requestRepository;
     private final EventDao eventDao;
     private final UserRepository userRepository;
+
     @Override
     public RequestStatusResponse editStatuses(Long userId, Long eventId, RequestStatusDto requestStatus) {
 
@@ -73,14 +74,14 @@ public class PrivateRequestServiceImpl implements PrivateRequestService{
         User requester = userRepository.findById(userId)
                 .orElseThrow(() -> new BadDBRequestException(USER_NO_ID));
 
-       Request request = Request.builder()
+        Request request = Request.builder()
                 .requester(requester)
                 .status(PENDING)
                 .event(event)
                 .created(LocalDateTime.now())
                 .build();
 
-       return requestRepository.save(request);
+        return requestRepository.save(request);
     }
 
     @Override

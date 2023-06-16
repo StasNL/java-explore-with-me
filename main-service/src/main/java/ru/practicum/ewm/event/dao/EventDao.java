@@ -17,9 +17,13 @@ public interface EventDao {
                                        Integer size,
                                        String sortBy,
                                        Boolean onlyAvailable);
+
     List<ShortEvent> getAllEventsByUserId(Long initiatorId, Integer from, Integer size);
+
     List<ShortEvent> getAllEventsByCompilationId(Long compId);
+
     Map<Long, List<ShortEvent>> getAllEventsByCompilations(List<Long> compIds);
+
     Long getConfirmedRequestsByEventId(Long eventId);
 
     void increaseViews(List<Long> eventIds);

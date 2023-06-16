@@ -23,6 +23,7 @@ import static ru.practicum.ewm.utils.ExceptionMessages.CATEGORY_WRONG_NAME;
 public class AdminCategoryServiceImpl implements AdminCategoryService {
 
     private final CategoryRepository categoryRepository;
+
     @Override
     public Category createCategory(NewCategoryRequest newCategory) {
 
