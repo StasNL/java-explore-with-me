@@ -1,4 +1,4 @@
-package ru.practicum;
+package ru.practicum.stats_client;
 
 import dto.HitDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class Client {
+public class StatsClient {
     private static final String GET_STATS_PATH = "/stats";
     private static final String POST_STATS_PATH = "/hit";
     private final RestTemplate rest;
 
     @Autowired
-    public Client(@Value("${stats-server.url}") String statsServerUrl, RestTemplateBuilder builder) {
+    public StatsClient(@Value("${stats-server.url}") String statsServerUrl, RestTemplateBuilder builder) {
         this.rest = builder
                 .uriTemplateHandler(new DefaultUriBuilderFactory(statsServerUrl))
                 .requestFactory(HttpComponentsClientHttpRequestFactory::new)
