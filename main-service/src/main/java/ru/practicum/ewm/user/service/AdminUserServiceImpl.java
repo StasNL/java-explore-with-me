@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.exceptions.BadDBRequestException;
-import ru.practicum.ewm.exceptions.BadRequestException;
+import ru.practicum.ewm.exceptions.DataConflictException;
 import ru.practicum.ewm.user.dto.NewUser;
 import ru.practicum.ewm.user.dto.UserMapper;
 import ru.practicum.ewm.user.dto.UserResponse;
@@ -29,10 +29,9 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     public UserResponse createUser(NewUser newUser) {
-        Optional<User> wrongUser = userRepository.findByEmail(newUser.getEmail());
-        if (wrongUser.isPresent())
-                throw new BadRequestException(WRONG_EMAIL);
 
+        checkUserEmail(newUser.getEmail());
+        checkUserName(newUser.getName());
         User user = UserMapper.newUserToUser(newUser);
 
         user = userRepository.save(user);
@@ -44,13 +43,16 @@ public class AdminUserServiceImpl implements AdminUserService {
     public List<UserResponse> getUsersByIds(List<Long> userIds, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
 
-        List<UserResponse> users = userRepository.findAllByUserIdIn(userIds, pageable).stream()
+        List<User> users;
+                if (userIds == null || userIds.isEmpty()) {
+                    users = userRepository.findAll(pageable).toList();
+                } else {
+                    users = userRepository.findAllByUserIdIn(userIds, pageable).toList();
+                }
+
+        return users.stream()
                 .map(UserMapper::userToUserResponse)
                 .collect(Collectors.toList());
-
-        if (users.size() < userIds.size())
-            throw new BadRequestException(USER_WRONG_LIST);
-        return users;
     }
 
     @Override
@@ -64,5 +66,17 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public User getUserById(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new BadDBRequestException("user.no.id"));
+    }
+
+    private void checkUserName(String name) {
+        Optional<User> user = userRepository.findByName(name);
+        if (user.isPresent())
+            throw new DataConflictException(USER_WRONG_NAME);
+    }
+
+    private void checkUserEmail(String email) {
+        Optional<User> wrongUser = userRepository.findByEmail(email);
+        if (wrongUser.isPresent())
+            throw new DataConflictException(WRONG_EMAIL);
     }
 }

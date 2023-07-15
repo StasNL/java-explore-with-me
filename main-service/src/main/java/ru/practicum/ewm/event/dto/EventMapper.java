@@ -80,4 +80,18 @@ public final class EventMapper {
                 .map(EventMapper::shortEventToShortEventResponse)
                 .collect(Collectors.toList());
     }
+
+    public static ShortEvent eventToShortEvent(Event event) {
+        return ShortEvent.builder()
+                .id(event.getEventId())
+                .title(event.getTitle())
+                .views(event.getViews())
+                .paid(event.getPaid())
+                .initiator(event.getInitiator())
+                .eventDate(event.getEventDate())
+                .category(event.getCategory())
+                .annotation(event.getAnnotation())
+                .publicationDate(event.getPublishedOn())
+                .build();
+    }
 }

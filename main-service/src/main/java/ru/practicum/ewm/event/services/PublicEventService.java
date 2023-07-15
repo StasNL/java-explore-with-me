@@ -19,5 +19,5 @@ public interface PublicEventService {
                                           Integer size,
                                           HttpServletRequest request);
 
-    FullEventResponse getFullEvent(Long eventId, HttpServletRequest httpRequest);
+    FullEventResponse getFullEvent(Long eventId, HttpServletRequest request);
 }

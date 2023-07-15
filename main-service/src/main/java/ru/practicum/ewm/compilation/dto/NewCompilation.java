@@ -4,7 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 @Data
@@ -14,8 +14,8 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewCompilation {
     @NotBlank
+    @Size(max = 50, message = "В названии подборки допустимо не более 50 символов.")
     String title;
     List<Long> events;
-    @NotNull
     Boolean pinned;
 }

@@ -1,7 +1,7 @@
 package ru.practicum.service;
 
-import dto.HitDto;
-import dto.StatsDto;
+import ru.practicum.dto.HitDto;
+import ru.practicum.dto.StatsDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +32,11 @@ public class StatsServiceImpl implements StatsService {
         } else {
             if (uris == null)
                 return repository.getStatsBetweenStartAndEndTime(start, end);
-            else
-                return repository.getStatsBetweenStartAndEndTimeByUri(start, end, uris);
+            else {
+                List<StatsDto> stats = repository.getStatsBetweenStartAndEndTimeByUri(start, end, uris);
+                log.info("uri = " + uris.get(0));
+                return stats;
+            }
         }
     }
 

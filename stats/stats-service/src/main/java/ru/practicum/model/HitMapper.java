@@ -1,6 +1,6 @@
 package ru.practicum.model;
 
-import dto.HitDto;
+import ru.practicum.dto.HitDto;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

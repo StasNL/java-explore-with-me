@@ -7,8 +7,10 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.event.dao.EventDao;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
+import ru.practicum.ewm.event.services.PrivateEventService;
 import ru.practicum.ewm.exceptions.BadDBRequestException;
 import ru.practicum.ewm.exceptions.BadRequestException;
+import ru.practicum.ewm.exceptions.DataConflictException;
 import ru.practicum.ewm.request.RequestRepository;
 import ru.practicum.ewm.request.dto.RequestResponse;
 import ru.practicum.ewm.request.dto.RequestStatusDto;
@@ -36,6 +38,7 @@ public class PrivateRequestServiceImpl implements PrivateRequestService {
     private final RequestRepository requestRepository;
     private final EventDao eventDao;
     private final UserRepository userRepository;
+    private final PrivateEventService eventService;
 
     @Override
     public RequestStatusResponse editStatuses(Long userId, Long eventId, RequestStatusDto requestStatus) {
@@ -49,19 +52,27 @@ public class PrivateRequestServiceImpl implements PrivateRequestService {
 
         if (CONFIRMED.equals(requestStatus.getStatus())) {
             Long participantLimit = eventDao.getConfirmedRequestsByEventId(eventId);
-            Long confirmedRequests = requestRepository.getConfirmedRequestsByEvent_EventId(eventId);
+            Long confirmedRequests = requestRepository.getConfirmedRequestsByEventId(eventId);
             if (participantLimit < (confirmedRequests + requests.size()))
-                throw new BadRequestException(CONFIRMED_REQUEST_LIMITS);
+                throw new DataConflictException(CONFIRMED_REQUEST_LIMITS);
         }
 
+        if (REJECTED.equals(requestStatus.getStatus())) {
+            for (Request request : requests) {
+                if (request.getStatus().equals(CONFIRMED))
+                    throw new DataConflictException(REJECT_CONFIRMED_REQUEST);
+            }
+        }
         requests.forEach(request -> request.setStatus(requestStatus.getStatus()));
-
+        requests = requestRepository.saveAll(requests);
         return RequestMapper.mapToRequestStatusResponse(requests, requestStatus.getStatus());
     }
 
     @Override
     public List<RequestResponse> getAllRequestsByUserIdAndEventId(Long userId, Long eventId) {
-        List<Request> requests = requestRepository.findAllByRequester_UserIdAndEvent_EventId(userId, eventId);
+        eventService.checkEventByOwnerId(userId, eventId);
+
+        List<Request> requests = requestRepository.findAllByEvent_EventId(eventId);
 
         return requests.stream()
                 .map(RequestMapper::requestToRequestResponse)
@@ -76,11 +87,14 @@ public class PrivateRequestServiceImpl implements PrivateRequestService {
 
         Request request = Request.builder()
                 .requester(requester)
-                .status(PENDING)
                 .event(event)
                 .created(LocalDateTime.now())
                 .build();
 
+        if (event.getParticipantLimit() == 0 || !event.getRequestModeration())
+            request.setStatus(CONFIRMED);
+        else
+            request.setStatus(PENDING);
         return requestRepository.save(request);
     }
 
@@ -117,22 +131,27 @@ public class PrivateRequestServiceImpl implements PrivateRequestService {
     }
 
     private Event checkBeforeCreating(long userId, long eventId) {
-        Event event = eventRepository.findByEventIdAndState(eventId, PUBLISHED)
+        Event event = eventRepository.findByEventId(eventId)
                 .orElseThrow(() -> new BadDBRequestException(EVENT_NO_ID));
 
-        if (event.getInitiator().getUserId() == userId)
-            throw new BadRequestException(REQUESTER_IS_INITIATOR);
+        if (!event.getState().equals(PUBLISHED)) {
+            throw new DataConflictException(REQUEST_UNPUBLISHED);
+        }
 
-        boolean isRequests = !requestRepository.findAllByRequester_UserIdAndEvent_EventId(userId, eventId).isEmpty();
+        if (event.getInitiator().getUserId() == userId)
+            throw new DataConflictException(REQUESTER_IS_INITIATOR);
+
+        boolean isRequests = !requestRepository.findAllByRequesterIdAndEventId(userId, eventId).isEmpty();
         if (isRequests)
-            throw new BadRequestException(REQUESTER_EXISTS);
+            throw new DataConflictException(REQUESTER_EXISTS);
 
         Long confirmedRequests = event.getRequests().stream()
                 .filter(request -> request.getStatus() == CONFIRMED)
                 .count();
 
-        if (event.getParticipantLimit() <= confirmedRequests)
-            throw new BadRequestException(CONFIRMED_REQUEST_LIMITS);
+        if (event.getParticipantLimit() != 0 && event.getParticipantLimit() <= confirmedRequests) {
+            throw new DataConflictException(CONFIRMED_REQUEST_LIMITS);
+        }
 
         return event;
     }

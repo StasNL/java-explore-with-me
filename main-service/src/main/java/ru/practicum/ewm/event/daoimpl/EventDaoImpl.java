@@ -87,15 +87,28 @@ public class EventDaoImpl implements EventDao {
                 "               views, " +
                 "               user_name, " +
                 "               email, " +
-                "               category_name " +
-                "FROM events AS e " +
+                "               category_name," +
+                "               e.creation_date " +
+                "       FROM events AS e " +
         "                           LEFT JOIN requests r " +
                 "                               ON r.event_id = e.ev_id " +
                 "                               AND r.status = 'CONFIRMED' " +
                 "                           LEFT JOIN users AS u ON e.initiator_id = u.user_id " +
                 "                           LEFT JOIN categories AS c ON e.category_id = c.cat_id " +
-                where +
-                "GROUP BY ev_id, participants_limit, title, paid, initiator_id, event_date, category_id, annotation, views, user_name, email, category_name ";
+                        where +
+                "       GROUP BY ev_id, " +
+                "               participants_limit, " +
+                "               title," +
+                "               paid, " +
+                "               initiator_id, " +
+                "               event_date, " +
+                "               category_id, " +
+                "               annotation, " +
+                "               views," +
+                "               user_name, " +
+                "               email, " +
+                "               category_name," +
+                "               e.creation_date ";
 
         if (onlyAvailable != null && onlyAvailable) {
             sql = sql + "HAVING (participants_limit - COUNT(r.req_id)) > 0 ";
@@ -108,23 +121,6 @@ public class EventDaoImpl implements EventDao {
         }
         sql = sql + "LIMIT :size " +
                 "OFFSET :from";
-
-//        String sql = "SELECT ev_id, title, paid, initiator_id, event_date, category_id, annotation, \n" +
-//                "\tCOUNT(req_id) AS confirmed_requests, views, user_name, email, category_name\n" +
-//                "FROM events AS e\n" +
-//                "\tLEFT JOIN requests AS r ON r.event_id = e.ev_id AND r.status = 'CONFIRMED'\n" +
-//                "\tLEFT JOIN users AS u ON e.initiator_id = u.user_id\n" +
-//                "\tLEFT JOIN categories AS c ON e.category_id = c.cat_id\n" +
-//                "WHERE (annotation ILIKE '%'||:text||'%' OR description ILIKE '%'||:text||'%')\n" +
-//                "\tAND category_id IN (:categories)\n " +
-//                "\tAND paid = :paid \n" +
-//                "\tAND e.creation_date > :rangeStart\n" +
-//                "\tAND e.creation_date < :rangeEnd\n" +
-//                "GROUP BY ev_id, participants_limit, title, paid, initiator_id, event_date, category_id, annotation, views, user_name, email, category_name\n" +
-//                "HAVING (participants_limit - COUNT(r.req_id)) < 0\n" +
-//                "ORDER BY event_date\n" +
-//                "LIMIT :size\n" +
-//                "OFFSET :from";
 
         return namedJdbcTemplate.query(sql, parameters, this::mapRowToEvent);
     }
@@ -150,7 +146,8 @@ public class EventDaoImpl implements EventDao {
                 "               views, " +
                 "               user_name, " +
                 "               email, " +
-                "               category_name " +
+                "               category_name," +
+                "               e.creation_date " +
                 "       FROM events AS e " +
                 "                           LEFT JOIN requests r " +
                 "                               ON r.event_id = e.ev_id " +
@@ -158,7 +155,18 @@ public class EventDaoImpl implements EventDao {
                 "                           LEFT JOIN users AS u ON e.initiator_id = u.user_id " +
                 "                           LEFT JOIN categories AS c ON e.category_id = c.cat_id " +
                 "       WHERE initiator_id = :initiator_id  " +
-                "       GROUP BY ev_id, title, paid, initiator_id, event_date, category_id, annotation, views, user_name, email, category_name " +
+                "       GROUP BY ev_id, " +
+                "               title, " +
+                "               paid, " +
+                "               initiator_id, " +
+                "               event_date, " +
+                "               category_id, " +
+                "               annotation, " +
+                "               views, " +
+                "               user_name, " +
+                "               email, " +
+                "               category_name," +
+                "               e.creation_date " +
                 "       LIMIT :size " +
                 "       OFFSET :from ";
 
@@ -184,7 +192,8 @@ public class EventDaoImpl implements EventDao {
                 "               views, " +
                 "               user_name, " +
                 "               email, " +
-                "               category_name " +
+                "               category_name," +
+                "               e.creation_date " +
                 "       FROM events AS e " +
                 "           LEFT JOIN requests r " +
                 "               ON r.event_id = e.ev_id " +
@@ -194,24 +203,68 @@ public class EventDaoImpl implements EventDao {
                 "           LEFT JOIN compilations_events AS ce ON e.ev_id = ce.event_id " +
                 "           JOIN compilations AS comp on comp.comp_id = ce.compilation_id " +
                 "       WHERE comp_id = :comp_id " +
-                "       GROUP BY ev_id, e.title, paid, initiator_id, event_date, category_id, annotation, views, user_name, email, category_name ";
+                "       GROUP BY ev_id, " +
+                "               e.title, " +
+                "               paid, " +
+                "               initiator_id, " +
+                "               event_date, " +
+                "               category_id, " +
+                "               annotation, " +
+                "               views, " +
+                "               user_name, " +
+                "               email, " +
+                "               category_name," +
+                "               e.creation_date ";
 
         return namedJdbcTemplate.query(sql, parameters, this::mapRowToEvent);
     }
 
     @Override
-    public void increaseViews(List<Long> eventIds) {
-        namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+    public void updateViews(Map<Long, Long> views) {
+        for (Map.Entry<Long, Long> entry : views.entrySet()) {
 
-        String sql = "  UPDATE events" +
-                "           SET views = views + 1" +
-                "       WHERE ev_id IN (:ev_ids)";
-
-        MapSqlParameterSource parameters = new MapSqlParameterSource();
-        parameters.addValue("ev_ids", eventIds);
-
-        namedJdbcTemplate.update(sql, parameters);
+            String sql = "  UPDATE events " +
+                    "       SET views = " + entry.getValue() +
+                    "       WHERE ev_id = " + entry.getKey();
+            jdbcTemplate.update(sql);
+        }
     }
+
+//    @Override
+//    public FullEventResponse getEventById(Long eventId) {
+//        String sql = "  " +
+//                "SELECT e.*," +
+//                "       cat.*," +
+//                "       comp.*," +
+//                "       loc.*,  " +
+//                "       COUNT(r.req_id) AS confirmed_requests " +
+//                "FROM events AS e " +
+//                "   LEFT JOIN requests r " +
+//        "               ON r.event_id = e.ev_id " +
+//                "       AND r.status = 'CONFIRMED'" +
+//                "   LEFT JOIN users AS u ON e.initiator_id = u.user_id " +
+//                "   LEFT JOIN categories AS cat ON e.category_id = cat.cat_id " +
+//                "   LEFT JOIN compilations_events AS ce ON e.ev_id = ce.event_id " +
+//                "   LEFT JOIN compilations AS comp ON comp.comp_id = ce.compilation_id " +
+//                "   LEFT JOIN locations AS loc ON e.location_id = loc.loc_id " +
+//                "WHERE ev_id = ? " +
+//                "GROUP BY ev_id, " +
+//        "                 e.title, " +
+//                "         paid, " +
+//                "         initiator_id, " +
+//                "         event_date, " +
+//                "         category_id, " +
+//                "         annotation, " +
+//                "         views, " +
+//                "         user_name, " +
+//                "         email, " +
+//                "         category_name," +
+//                "         e.creation_date," +
+//                "loc.loc_id, loc.latitude, loc.longitude," +
+//                "cat.cat_id, cat.category_name," +
+//                "comp.comp_id, comp.pinned, comp.title ";
+//        return jdbcTemplate.queryForObject(sql, this::mapRowToFullEvent, eventId);
+//    }
 
     @Override
     public Long getConfirmedRequestsByEventId(Long eventId) {
@@ -221,6 +274,18 @@ public class EventDaoImpl implements EventDao {
 
         return jdbcTemplate.queryForObject(sql, Long.class, eventId);
     }
+
+    @Override
+    public Map<Long, List<ShortEvent>> getAllEventsByCompilations(List<Long> compIds) {
+        Map<Long, List<ShortEvent>> shortEventMap = new LinkedHashMap<>();
+        for (Long compId : compIds) {
+            List<ShortEvent> shortEvents = getAllEventsByCompilationId(compId);
+            shortEventMap.put(compId, shortEvents);
+        }
+        return shortEventMap;
+    }
+
+
 
     private ShortEvent mapRowToEvent(ResultSet rs, int rowNumber) throws SQLException {
 
@@ -245,16 +310,45 @@ public class EventDaoImpl implements EventDao {
                 .eventDate(rs.getTimestamp("event_date").toLocalDateTime())
                 .category(category)
                 .annotation(rs.getString("annotation"))
+                .publicationDate(rs.getTimestamp("creation_date").toLocalDateTime())
                 .build();
     }
 
-    @Override
-    public Map<Long, List<ShortEvent>> getAllEventsByCompilations(List<Long> compIds) {
-        Map<Long, List<ShortEvent>> shortEventMap = new LinkedHashMap<>();
-        for (Long compId : compIds) {
-            List<ShortEvent> shortEvents = getAllEventsByCompilationId(compId);
-            shortEventMap.put(compId, shortEvents);
-        }
-        return shortEventMap;
-    }
+//    private FullEventResponse mapRowToFullEvent(ResultSet rs, int rowNumber) throws SQLException {
+//        User initiator = User.builder()
+//                .userId(rs.getLong("initiator_id"))
+//                .name(rs.getString("user_name"))
+//                .email(rs.getString("email"))
+//                .build();
+//
+//        Category category = Category.builder()
+//                .catId(rs.getLong("category_id"))
+//                .name(rs.getString("category_name"))
+//                .build();
+//
+//        Location location = Location.builder()
+//                .locId(rs.getLong("loc_id"))
+//                .lat(rs.getFloat("latitude"))
+//                .lon(rs.getFloat("longitude"))
+//                .build();
+//
+//        return FullEventResponse.builder()
+//                .id(rs.getLong("ev_id"))
+//                .title(rs.getString("title"))
+//                .views(rs.getLong("views"))
+//                .paid(rs.getBoolean("paid"))
+//                .confirmedRequests(rs.getLong("confirmed_requests"))
+//                .initiator(initiator)
+//                .eventDate(rs.getTimestamp("event_date").toLocalDateTime().toString())
+//                .category(category)
+//                .annotation(rs.getString("annotation"))
+//                .location(location)
+//                .createdOn(rs.getTimestamp("creation_date").toLocalDateTime().toString())
+//                .description(rs.getString("description"))
+//                .participantLimit(rs.getLong("participants_limit"))
+//                .publishedOn(rs.getTimestamp("publication_date").toLocalDateTime().toString())
+//                .requestModeration(rs.getBoolean("request_moderation"))
+//                .state(rs.getString("state"))
+//                .build();
+//    }
 }

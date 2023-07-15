@@ -23,4 +23,5 @@ public class ShortEvent {
     private LocalDateTime eventDate;
     private Category category;
     private String annotation;
+    private LocalDateTime publicationDate;
 }

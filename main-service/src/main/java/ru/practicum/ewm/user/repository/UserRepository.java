@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
+    Optional<User> findByName(String name);
+
     @Query("select u from User u where u.userId in (?1)")
     Page<User> findAllByUserIdIn(List<Long> userIds, Pageable pageable);
 }

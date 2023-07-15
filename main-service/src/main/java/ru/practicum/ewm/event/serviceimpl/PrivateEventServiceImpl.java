@@ -15,6 +15,7 @@ import ru.practicum.ewm.event.repository.LocationRepository;
 import ru.practicum.ewm.event.services.PrivateEventService;
 import ru.practicum.ewm.exceptions.BadDBRequestException;
 import ru.practicum.ewm.exceptions.BadRequestException;
+import ru.practicum.ewm.exceptions.DataConflictException;
 import ru.practicum.ewm.request.RequestRepository;
 import ru.practicum.ewm.user.model.User;
 import ru.practicum.ewm.user.service.AdminUserService;
@@ -24,11 +25,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.ewm.event.model.enums.State.CANCELED;
-import static ru.practicum.ewm.event.model.enums.State.PENDING;
+import static ru.practicum.ewm.event.model.enums.State.*;
 import static ru.practicum.ewm.utils.Constants.TIME_FORMAT;
-import static ru.practicum.ewm.utils.ExceptionMessages.EVENT_NO_ID;
-import static ru.practicum.ewm.utils.ExceptionMessages.EVENT_WRONG_INITIATOR;
+import static ru.practicum.ewm.utils.ExceptionMessages.*;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -41,9 +40,12 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     private final PublicCategoryService categoryService;
     private final LocationRepository locationRepository;
     private final EventDao eventDao;
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern(TIME_FORMAT);
 
     @Override
     public FullEventResponse createEvent(Long userId, NewEventRequest newEvent) {
+
+        checkEventDate(LocalDateTime.parse(newEvent.getEventDate(), dtf));
 
         User initiator = userService.getUserById(userId);
         Category category = categoryService.getCategoryById(newEvent.getCategory());
@@ -53,7 +55,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         Event event = EventMapper.newEventToEvent(newEvent, initiator, category, location);
         event = eventRepository.save(event);
 
-        Long confirmedRequests = requestRepository.getConfirmedRequestsByEvent_EventId(event.getEventId());
+        Long confirmedRequests = requestRepository.getConfirmedRequestsByEventId(event.getEventId());
 
         return EventMapper.eventToFullEventResponse(event, confirmedRequests);
 
@@ -62,7 +64,11 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     @Override
     public FullEventResponse editEvent(Long userId, Long eventId, EventRequest eventRequest) {
 
-        Event event = checkEventByUserId(userId, eventId);
+        Event event = checkEventByOwnerId(userId, eventId);
+
+        if (PUBLISHED.equals(event.getState())) {
+            throw new DataConflictException(EDIT_PUBLISHED_EVENT);
+        }
 
         if (eventRequest.getTitle() != null)
             event.setTitle(eventRequest.getTitle());
@@ -71,8 +77,8 @@ public class PrivateEventServiceImpl implements PrivateEventService {
             event.setDescription(eventRequest.getDescription());
 
         if (eventRequest.getEventDate() != null) {
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern(TIME_FORMAT);
             LocalDateTime eventDate = LocalDateTime.parse(eventRequest.getEventDate(), dtf);
+            checkEventDate(eventDate);
             event.setEventDate(eventDate);
         }
 
@@ -109,7 +115,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         }
 
         event = eventRepository.save(event);
-        Long confirmedRequests = requestRepository.getConfirmedRequestsByEvent_EventId(event.getEventId());
+        Long confirmedRequests = requestRepository.getConfirmedRequestsByEventId(event.getEventId());
 
         return EventMapper.eventToFullEventResponse(event, confirmedRequests);
     }
@@ -117,8 +123,8 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     @Override
     @Transactional(readOnly = true)
     public FullEventResponse getEventByUserIdAndEventId(long userId, long eventId) {
-        Event event = checkEventByUserId(userId, eventId);
-        Long confirmedRequests = requestRepository.getConfirmedRequestsByEvent_EventId(event.getEventId());
+        Event event = checkEventByOwnerId(userId, eventId);
+        Long confirmedRequests = requestRepository.getConfirmedRequestsByEventId(event.getEventId());
 
         return EventMapper.eventToFullEventResponse(event, confirmedRequests);
     }
@@ -134,12 +140,17 @@ public class PrivateEventServiceImpl implements PrivateEventService {
                 .collect(Collectors.toList());
     }
 
-    private Event checkEventByUserId(long userId, long eventId) {
+    public Event checkEventByOwnerId(long userId, long eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new BadDBRequestException(EVENT_NO_ID));
 
         if (event.getInitiator().getUserId() != userId)
             throw new BadRequestException(EVENT_WRONG_INITIATOR);
         return event;
+    }
+
+    private void checkEventDate(LocalDateTime eventDate) {
+        if (eventDate.isBefore(LocalDateTime.now()))
+            throw new BadRequestException(EVENT_DATE_IN_PAST);
     }
 }

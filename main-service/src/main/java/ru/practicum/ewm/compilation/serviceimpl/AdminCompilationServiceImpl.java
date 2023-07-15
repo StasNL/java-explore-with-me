@@ -17,6 +17,7 @@ import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exceptions.BadDBRequestException;
 import ru.practicum.ewm.exceptions.BadRequestException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,9 +36,14 @@ public class AdminCompilationServiceImpl implements AdminCompilationService {
     public CompilationResponse createCompilation(NewCompilation newCompilation) {
         checkCompilationTitle(newCompilation.getTitle(), 0L);
 
-        List<Event> events = checkEventsById(newCompilation.getEvents());
+        List<Event> events = new ArrayList<>();
+        if (newCompilation.getEvents() != null && !newCompilation.getEvents().isEmpty())
+                events = checkEventsById(newCompilation.getEvents());
+        if (newCompilation.getPinned() == null)
+            newCompilation.setPinned(false);
 
         Compilation compilation = CompilationMapper.newCompilationToCompilation(newCompilation, events);
+
 
         compilation = compilationRepository.save(compilation);
 

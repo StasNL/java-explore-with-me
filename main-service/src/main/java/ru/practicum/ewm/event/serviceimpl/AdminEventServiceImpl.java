@@ -10,26 +10,26 @@ import ru.practicum.ewm.event.dao.AdminEventDao;
 import ru.practicum.ewm.event.dto.EventMapper;
 import ru.practicum.ewm.event.dto.EventRequest;
 import ru.practicum.ewm.event.dto.FullEventResponse;
-import ru.practicum.ewm.event.dto.ShortEventResponse;
 import ru.practicum.ewm.event.model.Event;
-import ru.practicum.ewm.event.model.enums.State;
+import ru.practicum.ewm.event.model.Location;
 import ru.practicum.ewm.event.repository.EventRepository;
+import ru.practicum.ewm.event.repository.LocationRepository;
 import ru.practicum.ewm.event.services.AdminEventService;
 import ru.practicum.ewm.exceptions.BadDBRequestException;
+import ru.practicum.ewm.exceptions.BadRequestException;
+import ru.practicum.ewm.exceptions.DataConflictException;
 import ru.practicum.ewm.request.RequestRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.micrometer.core.instrument.util.StringUtils.isBlank;
 import static ru.practicum.ewm.event.model.enums.State.PUBLISHED;
 import static ru.practicum.ewm.event.model.enums.State.REJECTED;
 import static ru.practicum.ewm.utils.Constants.STANDARD_TIME_REGEX;
 import static ru.practicum.ewm.utils.Constants.TIME_FORMAT;
-import static ru.practicum.ewm.utils.ExceptionMessages.CATEGORY_NO_ID;
-import static ru.practicum.ewm.utils.ExceptionMessages.EVENT_NO_ID;
+import static ru.practicum.ewm.utils.ExceptionMessages.*;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -40,28 +40,43 @@ public class AdminEventServiceImpl implements AdminEventService {
     private final EventRepository eventRepository;
 
     private final CategoryRepository categoryRepository;
+    private final LocationRepository locationRepository;
     private final RequestRepository requestRepository;
+    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(TIME_FORMAT);
 
     @Override
-    public List<ShortEventResponse> getAllEventsForAdmin(
+    public List<FullEventResponse> getAllEventsForAdmin(
             List<Long> users,
-            List<State> states,
-            List<Category> categories,
+            List<String> states,
+            List<Long> categories,
+            Boolean paid,
+            Boolean onlyAvailable,
             String rangeStart,
             String rangeEnd,
             Integer from,
             Integer size) {
 
+        LocalDateTime rangeStartLdt = null;
+        if (rangeStart != null)
+            rangeStartLdt = LocalDateTime.parse(rangeStart, dtf);
+
+        LocalDateTime rangeEndLdt = null;
+        if (rangeEnd != null)
+            rangeEndLdt = LocalDateTime.parse(rangeEnd, dtf);
+
+        if (rangeStartLdt != null && rangeEndLdt != null && rangeEndLdt.isBefore(rangeStartLdt))
+            throw new BadRequestException(START_DT_AFTER_RND_DT);
+
         return eventDao.getAllEventsForAdmin(
-                        users,
-                        states,
-                        categories,
-                        rangeStart,
-                        rangeEnd,
-                        from,
-                        size).stream()
-                .map(EventMapper::shortEventToShortEventResponse)
-                .collect(Collectors.toList());
+                users,
+                states,
+                categories,
+                paid,
+                onlyAvailable,
+                rangeStartLdt,
+                rangeEndLdt,
+                from,
+                size);
     }
 
     @Override
@@ -84,11 +99,14 @@ public class AdminEventServiceImpl implements AdminEventService {
         if (!isBlank(eventRequest.getEventDate()) && eventRequest.getEventDate().matches(STANDARD_TIME_REGEX)) {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern(TIME_FORMAT);
             LocalDateTime ld = LocalDateTime.parse(eventRequest.getEventDate(), dtf);
+            checkEventDate(ld);
             event.setEventDate(ld);
         }
 
-        if (eventRequest.getLocation() != null)
-            event.setLocation(eventRequest.getLocation());
+        if (eventRequest.getLocation() != null && eventRequest.getLocation().getLocId() != null) {
+            Location location = locationRepository.save(eventRequest.getLocation());
+            event.setLocation(location);
+        }
 
         if (eventRequest.getPaid() != null)
             event.setPaid(eventRequest.getPaid());
@@ -102,9 +120,14 @@ public class AdminEventServiceImpl implements AdminEventService {
         if (eventRequest.getStateAction() != null)
             switch (eventRequest.getStateAction()) {
                 case PUBLISH_EVENT:
+                    if (event.getState().equals(PUBLISHED) || event.getState().equals(REJECTED))
+                        throw new DataConflictException(WRONG_PUBLISHING);
                     event.setState(PUBLISHED);
+                    event.setPublishedOn(LocalDateTime.now());
                     break;
                 case REJECT_EVENT:
+                    if (event.getState().equals(PUBLISHED))
+                        throw new DataConflictException(WRONG_REJECTING);
                     event.setState(REJECTED);
                     break;
             }
@@ -112,8 +135,15 @@ public class AdminEventServiceImpl implements AdminEventService {
         if (!isBlank(eventRequest.getTitle()))
             event.setTitle(eventRequest.getTitle());
 
-        Long confirmedRequests = requestRepository.getConfirmedRequestsByEvent_EventId(event.getEventId());
+        event = eventRepository.save(event);
+
+        Long confirmedRequests = requestRepository.getConfirmedRequestsByEventId(eventId);
 
         return EventMapper.eventToFullEventResponse(event, confirmedRequests);
+    }
+
+    private void checkEventDate(LocalDateTime eventDate) {
+        if (eventDate.isBefore(LocalDateTime.now()))
+            throw new BadRequestException(EVENT_DATE_IN_PAST);
     }
 }

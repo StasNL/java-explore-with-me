@@ -1,19 +1,20 @@
 package ru.practicum.ewm.event.dao;
 
-import ru.practicum.ewm.category.model.Category;
-import ru.practicum.ewm.event.model.ShortEvent;
-import ru.practicum.ewm.event.model.enums.State;
+import ru.practicum.ewm.event.dto.FullEventResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface AdminEventDao {
 
-    List<ShortEvent> getAllEventsForAdmin(
+    List<FullEventResponse> getAllEventsForAdmin(
             List<Long> users,
-            List<State> states,
-            List<Category> categories,
-            String rangeStart,
-            String rangeEnd,
+            List<String> states,
+            List<Long> categories,
+            Boolean paid,
+            Boolean onlyAvailable,
+            LocalDateTime rangeStart,
+            LocalDateTime rangeEnd,
             Integer from,
             Integer size);
 }

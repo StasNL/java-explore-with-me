@@ -30,7 +30,7 @@ public class PublicCompilationController {
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
     public List<CompilationResponse> getAllCompilations(
-            @RequestParam(required = false) Boolean pinned,
+            @RequestParam(required = false, defaultValue = "false") Boolean pinned,
             @RequestParam(required = false, defaultValue = PAGINATION_FROM) @PositiveOrZero Integer from,
             @RequestParam(required = false, defaultValue = PAGINATION_SIZE) @PositiveOrZero Integer size) {
 

@@ -1,6 +1,6 @@
 package ru.practicum.stats_client;
 
-import dto.HitDto;
+import ru.practicum.dto.HitDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -29,15 +29,25 @@ public class StatsClient {
                 .build();
     }
 
-    public ResponseEntity<Object> getStats(String start, String end, List<String> uris, boolean unique) {
+    public ResponseEntity<Object> getStats(String start, String end, List<String> uris, Boolean unique) {
+
+        StringBuilder path = new StringBuilder(GET_STATS_PATH + "?start={start}&end={end}");
         Map<String, Object> parameters = Map.of(
                 "start", start,
-                "end", end,
-                "uris", uris,
-                "unique", unique
-        );
-        String path = GET_STATS_PATH + "?start={start}&end={end}&uris={uris}&unique={unique}";
-        return makeAndSendRequest(HttpMethod.GET, path, parameters, null);
+                "end", end);
+
+        if (uris != null && !uris.isEmpty()) {
+            for (String uri : uris) {
+                path.append("&uris=").append(uri);
+            }
+        }
+        if (unique != null) {
+            path.append("&unique=").append(unique);
+        }
+
+
+
+        return makeAndSendRequest(HttpMethod.GET, path.toString(), parameters, null);
     }
 
     public ResponseEntity<Object> saveStats(HitDto body) {

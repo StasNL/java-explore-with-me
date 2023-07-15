@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.category.service.PublicCategoryService;
-import ru.practicum.ewm.exceptions.BadDBRequestException;
+import ru.practicum.ewm.exceptions.NotFoundException;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ public class PublicCategoryServiceImpl implements PublicCategoryService {
     public Category getCategoryById(Long catId) {
 
         return categoryRepository.findById(catId)
-                .orElseThrow(() -> new BadDBRequestException(CATEGORY_NO_ID));
+               .orElseThrow(() -> new NotFoundException(CATEGORY_NO_ID));
     }
 
     @Override

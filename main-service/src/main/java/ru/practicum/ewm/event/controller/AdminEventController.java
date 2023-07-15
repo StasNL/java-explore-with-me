@@ -5,11 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.event.dto.EventRequest;
 import ru.practicum.ewm.event.dto.FullEventResponse;
-import ru.practicum.ewm.event.dto.ShortEventResponse;
-import ru.practicum.ewm.event.model.enums.State;
 import ru.practicum.ewm.event.services.AdminEventService;
 
 import javax.validation.Valid;
@@ -31,10 +28,12 @@ public class AdminEventController {
 
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
-    public List<ShortEventResponse> getAllEventsForAdmin(
+    public List<FullEventResponse> getAllEventsForAdmin(
             @RequestParam(required = false) List<Long> users,
-            @RequestParam(required = false) List<State> states,
-            @RequestParam(required = false) List<Category> categories,
+            @RequestParam(required = false) List<String> states,
+            @RequestParam(required = false) List<Long> categories,
+            @RequestParam(required = false) Boolean paid,
+            @RequestParam(required = false) Boolean onlyAvailable,
             @RequestParam(required = false) @Pattern(regexp = STANDARD_TIME_REGEX) String rangeStart,
             @RequestParam(required = false) @Pattern(regexp = STANDARD_TIME_REGEX) String rangeEnd,
             @RequestParam(required = false, defaultValue = PAGINATION_FROM) @PositiveOrZero Integer from,
@@ -44,6 +43,8 @@ public class AdminEventController {
                 users,
                 states,
                 categories,
+                paid,
+                onlyAvailable,
                 rangeStart,
                 rangeEnd,
                 from,

@@ -26,5 +26,5 @@ public interface EventDao {
 
     Long getConfirmedRequestsByEventId(Long eventId);
 
-    void increaseViews(List<Long> eventIds);
+    void updateViews(Map<Long, Long> views);
 }

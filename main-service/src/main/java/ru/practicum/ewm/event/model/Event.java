@@ -34,7 +34,7 @@ public class Event {
     @Column(name = "publication_date")
     LocalDateTime publishedOn;
     @Column(name = "participants_limit")
-    Integer participantLimit;
+    Long participantLimit;
     @Column(name = "request_moderation")
     Boolean requestModeration;
     String annotation;

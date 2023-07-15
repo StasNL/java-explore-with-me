@@ -2,6 +2,7 @@ package ru.practicum.ewm.event.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import java.util.Objects;
 @Table(name = "locations")
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 @Builder
 public class Location {
     @Id

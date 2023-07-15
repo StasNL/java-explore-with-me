@@ -9,13 +9,15 @@ import ru.practicum.ewm.category.dto.NewCategoryRequest;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.category.service.AdminCategoryService;
-import ru.practicum.ewm.exceptions.BadDBRequestException;
-import ru.practicum.ewm.exceptions.BadRequestException;
+import ru.practicum.ewm.event.model.Event;
+import ru.practicum.ewm.event.repository.EventRepository;
+import ru.practicum.ewm.exceptions.DataConflictException;
+import ru.practicum.ewm.exceptions.NotFoundException;
 
+import java.util.List;
 import java.util.Optional;
 
-import static ru.practicum.ewm.utils.ExceptionMessages.CATEGORY_NO_ID;
-import static ru.practicum.ewm.utils.ExceptionMessages.CATEGORY_WRONG_NAME;
+import static ru.practicum.ewm.utils.ExceptionMessages.*;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -23,6 +25,7 @@ import static ru.practicum.ewm.utils.ExceptionMessages.CATEGORY_WRONG_NAME;
 public class AdminCategoryServiceImpl implements AdminCategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final EventRepository eventRepository;
 
     @Override
     public Category createCategory(NewCategoryRequest newCategory) {
@@ -38,28 +41,36 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
 
     @Override
     public Category editCategory(Long catId, CategoryRequest categoryRequest) {
-        checkCategoryName(categoryRequest.getName());
 
         Category category = checkCategoryId(catId);
+        if (!category.getName().equals(categoryRequest.getName()))
+            checkCategoryName(categoryRequest.getName());
         category.setName(categoryRequest.getName());
-
         return categoryRepository.save(category);
     }
 
     @Override
     public void deleteCategory(Long catId) {
         checkCategoryId(catId);
+        checkCategoryEvents(catId);
         categoryRepository.deleteById(catId);
     }
 
     private void checkCategoryName(String name) {
         Optional<Category> categoryOpt = categoryRepository.findByName(name);
         if (categoryOpt.isPresent())
-            throw new BadRequestException(CATEGORY_WRONG_NAME);
+            throw new DataConflictException(CATEGORY_WRONG_NAME);
     }
 
     private Category checkCategoryId(long id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new BadDBRequestException(CATEGORY_NO_ID));
+                .orElseThrow(() -> new NotFoundException(CATEGORY_NO_ID));
+    }
+
+    private void checkCategoryEvents(Long catId) {
+        List<Event> events = eventRepository.findAllByCategory_CatId(catId);
+        if (events != null && !events.isEmpty()) {
+            throw new DataConflictException(CATEGORY_CONSIST_EVENTS);
+        }
     }
 }

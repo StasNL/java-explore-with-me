@@ -16,21 +16,21 @@ import static ru.practicum.ewm.utils.Constants.STANDARD_TIME_REGEX;
 @NoArgsConstructor
 @Builder
 public class EventRequest {
-    @Size(min = 3)
+    @Size(min = 20, max = 2000, message = "Слишком длинная или короткая аннотация события")
     String annotation;
     @Positive
     Long category;
-    @Size(min = 3)
+    @Size(min = 20, max = 7000, message = "Слишком длинное или короткое описание события")
     String description;
     // Соответствие формата времени шаблону yyyy-MM-dd HH:mm:ss
     @Pattern(regexp = STANDARD_TIME_REGEX)
     String eventDate;
     Location location;
-    @Size(min = 3)
+    @Size(min = 3, max = 120, message = "Слишком длинное или короткое название события")
     String title;
     Boolean paid;
     @PositiveOrZero
-    Integer participantLimit;
+    Long participantLimit;
     Boolean requestModeration;
     StateAction stateAction;
 }

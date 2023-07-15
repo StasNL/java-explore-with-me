@@ -10,7 +10,6 @@ import ru.practicum.ewm.user.dto.UserResponse;
 import ru.practicum.ewm.user.service.AdminUserService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.util.List;
@@ -34,7 +33,7 @@ public class AdminUserController {
 
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
-    public List<UserResponse> getUsersByIds(@RequestParam @NotNull @NotEmpty List<Long> ids,
+    public List<UserResponse> getUsersByIds(@RequestParam(required = false) List<Long> ids,
                                             @RequestParam(required = false, defaultValue = PAGINATION_FROM) Integer from,
                                             @RequestParam(required = false, defaultValue = PAGINATION_SIZE) Integer size) {
         return userService.getUsersByIds(ids, from, size);

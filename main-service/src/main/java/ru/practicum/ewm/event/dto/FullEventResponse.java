@@ -25,7 +25,7 @@ public class FullEventResponse {
     private Location location;
     private String createdOn;
     private String description;
-    private Integer participantLimit;
+    private Long participantLimit;
     private String publishedOn;
     private Boolean requestModeration;
     private String state;
