@@ -17,6 +17,7 @@ public interface PrivateEventService {
     FullEventResponse getEventByUserIdAndEventId(long userID, long eventId);
 
     List<ShortEventResponse> getAllEventsByUserId(Long userId, Integer from, Integer size);
+
     Event checkEventByOwnerId(long userId, long eventId);
 
 }
