@@ -31,7 +31,7 @@ public class StatsServiceImpl implements StatsService {
                 return repository.getStatsBetweenStartAndEndTimeByUriUnique(start, end, uris);
             }
         } else {
-            if (uris == null)
+            if (uris == null || uris.isEmpty())
                 return repository.getStatsBetweenStartAndEndTime(start, end);
             else {
                 return repository.getStatsBetweenStartAndEndTimeByUri(start, end, uris);
