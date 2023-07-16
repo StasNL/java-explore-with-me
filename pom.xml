@@ -29,7 +29,6 @@
 		<spring.boot.version>2.7.5</spring.boot.version>
 		<httpclient.version>4.5.14</httpclient.version>
 		<hibernate-core.version>5.6.14.Final</hibernate-core.version>
-		<postgres.version>42.3.8</postgres.version>
 		<h2.version>2.1.210</h2.version>
 		<lombok.version>1.18.26</lombok.version>
 	</properties>
@@ -88,19 +87,8 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.3.8</version>
+			<version>42.5.4</version>
 			<scope>runtime</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>com.querydsl</groupId>
-			<artifactId>querydsl-apt</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>com.querydsl</groupId>
-			<artifactId>querydsl-jpa</artifactId>
 		</dependency>
 	</dependencies>
 
