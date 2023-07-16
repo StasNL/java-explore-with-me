@@ -1,5 +1,6 @@
 package ru.practicum;
 
+import org.springframework.http.HttpStatus;
 import ru.practicum.dto.HitDto;
 import ru.practicum.dto.StatsDto;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class StatsServiceController {
     }
 
     @PostMapping("/hit")
+    @ResponseStatus(HttpStatus.CREATED)
     public Hit saveStats(@RequestBody @Valid HitDto hitDto) {
         return service.saveStats(hitDto);
     }
