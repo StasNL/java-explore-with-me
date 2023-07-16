@@ -27,12 +27,11 @@
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
 		<spring.boot.version>2.7.5</spring.boot.version>
-		<httpclient.version>4.5.13</httpclient.version>
+		<httpclient.version>4.5.14</httpclient.version>
 		<hibernate-core.version>5.6.14.Final</hibernate-core.version>
-		<postgres.version>42.5.0</postgres.version>
+		<postgres.version>42.3.8</postgres.version>
 		<h2.version>2.1.210</h2.version>
-		<lombok.version>1.18.20</lombok.version>
-		<mapstruct.version>1.5.3.Final</mapstruct.version>
+		<lombok.version>1.18.26</lombok.version>
 	</properties>
 
 	<dependencies>
@@ -52,12 +51,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-actuator</artifactId>
 			<version>${spring.boot.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<scope>runtime</scope>
 		</dependency>
 
 		<dependency>
@@ -93,15 +86,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-			<version>${spring.boot.version}</version>
-		</dependency>
-
-		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>${postgresql.version}</version>
+			<version>42.3.8</version>
 			<scope>runtime</scope>
 		</dependency>
 
@@ -126,7 +113,7 @@
 					<configuration>
 						<excludes>
 							<exclude>
-								<groupId>org.projectlombok</groupId>
+								<groupId>org.project-lombok</groupId>
 								<artifactId>lombok</artifactId>
 							</exclude>
 						</excludes>
