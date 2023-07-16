@@ -33,9 +33,7 @@ public class StatsServiceImpl implements StatsService {
             if (uris == null)
                 return repository.getStatsBetweenStartAndEndTime(start, end);
             else {
-                List<StatsDto> stats = repository.getStatsBetweenStartAndEndTimeByUri(start, end, uris);
-                log.info("uri = " + uris.get(0));
-                return stats;
+                return repository.getStatsBetweenStartAndEndTimeByUri(start, end, uris);
             }
         }
     }

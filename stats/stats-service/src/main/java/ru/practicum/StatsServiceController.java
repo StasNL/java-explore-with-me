@@ -11,7 +11,6 @@ import ru.practicum.service.StatsService;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -33,8 +32,7 @@ public class StatsServiceController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime startLDT = LocalDateTime.parse(start, formatter);
         LocalDateTime endLDT = LocalDateTime.parse(end, formatter);
-        if (uris == null)
-            uris = new ArrayList<>();
+
         return service.getStats(startLDT, endLDT, uris, unique);
     }
 
