@@ -75,11 +75,8 @@ public class PublicEventServiceImpl implements PublicEventService {
         );
 
         // Учитываем просмотры
-        events.forEach(event -> {
-            String request = httpRequest.getRequestURI() + "/" + event.getId();
-            HitDto hit = makeHit(request, httpRequest.getRemoteAddr());
-            statsClient.saveStats(hit);
-        });
+        HitDto hit = makeHit(httpRequest.getRequestURI(), httpRequest.getRemoteAddr());
+        statsClient.saveStats(hit);
 
         // Запрашиваем просмотры
         Map<Long, Long> views = getViews(events);
@@ -152,8 +149,12 @@ public class PublicEventServiceImpl implements PublicEventService {
             }
         }
 
-        List<StatsDto> stats = statsClient.getStats(minPublishedDt.format(dtf),
-                LocalDateTime.now().format(dtf),
+        List<StatsDto> stats = statsClient.getStats(
+                //minPublishedDt.format(dtf),
+//                LocalDateTime.now().format(dtf),
+//
+                LocalDateTime.of(2023, 1, 1, 0, 0, 0).format(dtf),
+                LocalDateTime.of(2024, 1, 1, 0, 0, 0).format(dtf),
                 new ArrayList<>(uris.keySet()),
                 true);
 
