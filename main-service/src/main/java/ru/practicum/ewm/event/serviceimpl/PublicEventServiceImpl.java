@@ -1,11 +1,8 @@
 package ru.practicum.ewm.event.serviceimpl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.practicum.dto.HitDto;
 import ru.practicum.dto.StatsDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.exceptions.BadRequestException;
@@ -40,7 +37,6 @@ public class PublicEventServiceImpl implements PublicEventService {
     private final RequestRepository requestRepository;
     private final EventDao eventDao;
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(TIME_FORMAT);
-    private final ObjectMapper mapper = new ObjectMapper();
 
     @Transactional
     @Override
@@ -157,17 +153,10 @@ public class PublicEventServiceImpl implements PublicEventService {
             }
         }
 
-        ResponseEntity<Object> statsObject = statsClient.getStats(minPublishedDt.format(dtf),
+        List<StatsDto> stats = statsClient.getStats(minPublishedDt.format(dtf),
                 LocalDateTime.now().format(dtf),
                 new ArrayList<>(uris.keySet()),
                 true);
-
-        List<StatsDto> stats;
-        try {
-            stats = Arrays.asList(mapper.readValue(mapper.writeValueAsString(statsObject.getBody()), StatsDto[].class));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e.getMessage());
-        }
 
         Map<Long, Long> views = new HashMap<>();
 

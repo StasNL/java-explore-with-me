@@ -1,5 +1,7 @@
 package ru.practicum.stats_client;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.practicum.dto.HitDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
+import ru.practicum.dto.StatsDto;
 
 import java.util.List;
 import java.util.Map;
@@ -20,6 +23,7 @@ public class StatsClient {
     private static final String GET_STATS_PATH = "/stats";
     private static final String POST_STATS_PATH = "/hit";
     private final RestTemplate rest;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     public StatsClient(@Value("${stats-server.url}") String statsServerUrl, RestTemplateBuilder builder) {
@@ -29,7 +33,7 @@ public class StatsClient {
                 .build();
     }
 
-    public ResponseEntity<Object> getStats(String start, String end, List<String> uris, Boolean unique) {
+    public List<StatsDto> getStats(String start, String end, List<String> uris, Boolean unique) {
 
         StringBuilder path = new StringBuilder(GET_STATS_PATH + "?start={start}&end={end}");
         Map<String, Object> parameters = Map.of(
@@ -45,13 +49,18 @@ public class StatsClient {
             path.append("&unique=").append(unique);
         }
 
+        ResponseEntity<Object> re =  makeAndSendRequest(HttpMethod.GET, path.toString(), parameters, null);
 
-
-        return makeAndSendRequest(HttpMethod.GET, path.toString(), parameters, null);
+        if (re.getStatusCode().is2xxSuccessful()) {
+            return objectMapper.convertValue(re.getBody(), new TypeReference<>() {
+            });
+        } else {
+            return null;
+        }
     }
 
-    public ResponseEntity<Object> saveStats(HitDto body) {
-        return makeAndSendRequest(HttpMethod.POST, POST_STATS_PATH, null, body);
+    public void saveStats(HitDto body) {
+        makeAndSendRequest(HttpMethod.POST, POST_STATS_PATH, null, body);
     }
 
     private <T> ResponseEntity<Object> makeAndSendRequest(
