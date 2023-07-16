@@ -140,7 +140,6 @@ public class PublicEventServiceImpl implements PublicEventService {
                 .build();
     }
 
-    @Transactional
     public Map<Long, Long> getViews(List<ShortEvent> events) {
         Map<String, Long> uris = new HashMap<>();
         LocalDateTime minPublishedDt = LocalDateTime.now();
