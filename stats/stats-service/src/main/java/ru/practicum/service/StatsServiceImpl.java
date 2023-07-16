@@ -25,10 +25,11 @@ public class StatsServiceImpl implements StatsService {
     @Override
     public List<StatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         if (unique) {
-            if (uris == null)
+            if (uris == null || uris.isEmpty())
                 return repository.getStatsBetweenStartAndEndTimeUnique(start, end);
-            else
+            else {
                 return repository.getStatsBetweenStartAndEndTimeByUriUnique(start, end, uris);
+            }
         } else {
             if (uris == null)
                 return repository.getStatsBetweenStartAndEndTime(start, end);
