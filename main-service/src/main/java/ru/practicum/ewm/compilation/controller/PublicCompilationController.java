@@ -8,6 +8,7 @@ import ru.practicum.ewm.compilation.service.PublicCompilationService;
 import ru.practicum.ewm.compilation.dto.CompilationResponse;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class PublicCompilationController {
     public List<CompilationResponse> getAllCompilations(
             @RequestParam(required = false, defaultValue = "false") Boolean pinned,
             @RequestParam(required = false, defaultValue = PAGINATION_FROM) @PositiveOrZero Integer from,
-            @RequestParam(required = false, defaultValue = PAGINATION_SIZE) @PositiveOrZero Integer size) {
+            @RequestParam(required = false, defaultValue = PAGINATION_SIZE) @Positive Integer size) {
 
         return compilationService.getAllCompilations(pinned, from, size);
     }

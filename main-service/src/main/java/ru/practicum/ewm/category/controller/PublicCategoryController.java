@@ -9,6 +9,7 @@ import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.service.PublicCategoryService;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,7 +36,7 @@ public class PublicCategoryController {
     @ResponseStatus(code = HttpStatus.OK)
     public List<CategoryResponse> getAllCategories(
             @RequestParam(required = false, defaultValue = PAGINATION_FROM) @PositiveOrZero Integer from,
-            @RequestParam(required = false, defaultValue = PAGINATION_SIZE) @PositiveOrZero Integer size) {
+            @RequestParam(required = false, defaultValue = PAGINATION_SIZE) @Positive Integer size) {
 
         return categoryService.getAllCategories(from, size).stream()
                 .map(CategoryMapper::categoryToCategoryResponse)

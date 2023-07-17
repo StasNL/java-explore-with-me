@@ -10,13 +10,11 @@ import ru.practicum.ewm.user.model.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
+@Data
 @Table(name = "events")
 @NoArgsConstructor
-@Setter
-@Getter
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -55,41 +53,6 @@ public class Event {
 
     @OneToMany(mappedBy = "event", fetch = FetchType.EAGER)
     List<Request> requests;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Event event = (Event) o;
-        return Objects.equals(eventId, event.eventId)
-                && Objects.equals(title, event.title)
-                && Objects.equals(description, event.description)
-                && Objects.equals(paid, event.paid)
-                && Objects.equals(views, event.views)
-                && Objects.equals(createdOn, event.createdOn)
-                && Objects.equals(publishedOn, event.publishedOn)
-                && Objects.equals(participantLimit, event.participantLimit)
-                && Objects.equals(requestModeration, event.requestModeration)
-                && Objects.equals(annotation, event.annotation)
-                && Objects.equals(eventDate, event.eventDate)
-                && state == event.state;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(eventId,
-                title,
-                description,
-                paid,
-                views,
-                createdOn,
-                publishedOn,
-                participantLimit,
-                requestModeration,
-                annotation,
-                eventDate,
-                state);
-    }
 
     @Override
     public String toString() {

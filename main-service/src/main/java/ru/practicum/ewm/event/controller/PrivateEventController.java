@@ -60,7 +60,7 @@ public class PrivateEventController {
     public List<ShortEventResponse> getAllEventsByUserId(
             @PathVariable @NotNull @Positive Long userId,
             @RequestParam(required = false, defaultValue = PAGINATION_FROM) @PositiveOrZero Integer from,
-            @RequestParam(required = false, defaultValue = PAGINATION_SIZE) @PositiveOrZero Integer size) {
+            @RequestParam(required = false, defaultValue = PAGINATION_SIZE) @Positive Integer size) {
 
         return eventService.getAllEventsByUserId(userId, from, size);
     }

@@ -8,12 +8,9 @@ import ru.practicum.ewm.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Entity
-@Getter
-@Setter
-@ToString
+@Data
 @Table(name = "requests")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,23 +37,14 @@ public class Request {
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
-
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Request request = (Request) o;
-        return Objects.equals(reqId, request.reqId)
-                && Objects.equals(requester, request.requester)
-                && Objects.equals(created, request.created)
-                && status == request.status;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(reqId,
-                requester,
-                created,
-                status);
+    public String toString() {
+        return "Request{" +
+                "reqId=" + reqId +
+                ", requester=" + requester +
+                ", created=" + created +
+                ", status=" + status +
+                ", event=" + event +
+                '}';
     }
 }

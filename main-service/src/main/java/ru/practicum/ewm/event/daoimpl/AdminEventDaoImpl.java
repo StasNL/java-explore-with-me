@@ -26,14 +26,14 @@ public class AdminEventDaoImpl implements AdminEventDao {
 
     @Override
     public List<FullEventResponse> getAllEventsForAdmin(List<Long> users,
-                                                              List<String> states,
-                                                              List<Long> categories,
-                                                              Boolean paid,
-                                                              Boolean onlyAvailable,
-                                                              LocalDateTime rangeStart,
-                                                              LocalDateTime rangeEnd,
-                                                              Integer from,
-                                                              Integer size) {
+                                                        List<String> states,
+                                                        List<Long> categories,
+                                                        Boolean paid,
+                                                        Boolean onlyAvailable,
+                                                        LocalDateTime rangeStart,
+                                                        LocalDateTime rangeEnd,
+                                                        Integer from,
+                                                        Integer size) {
 
         NamedParameterJdbcTemplate namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
 
@@ -54,10 +54,7 @@ public class AdminEventDaoImpl implements AdminEventDao {
         }
 
         if (categories != null && !categories.isEmpty() && categories.get(0) != 0) {
-//            for (Long cat_id : categories) {
-//                if (cat_id < 0)
-//                    throw new BadRequestException(ID_IS_NOT_POSITIVE);
-//            }
+
             if (!"WHERE ".equals(where))
                 where = where + " AND";
             where = where + " category_id IN (:categories) ";
@@ -121,26 +118,26 @@ public class AdminEventDaoImpl implements AdminEventDao {
                 "           LEFT JOIN locations AS l ON l.loc_id = e.location_id " +
                 where +
                 "       GROUP BY ev_id, " +
-                                "participants_limit, " +
-                                "title, " +
-                                "paid, " +
-                                "initiator_id, " +
-                                "event_date, " +
-                                "category_id, " +
-                                "annotation, " +
-                                "views," +
-                                "user_name," +
-                                "email, " +
-                                "category_name, " +
-                                "description, " +
-                                "participants_limit, " +
-                                "state, " +
-                                "e.creation_date, " +
-                                "publication_date, " +
-                                "loc_id, " +
-                                "longitude, " +
-                                "latitude, " +
-                                "request_moderation ";
+                "participants_limit, " +
+                "title, " +
+                "paid, " +
+                "initiator_id, " +
+                "event_date, " +
+                "category_id, " +
+                "annotation, " +
+                "views," +
+                "user_name," +
+                "email, " +
+                "category_name, " +
+                "description, " +
+                "participants_limit, " +
+                "state, " +
+                "e.creation_date, " +
+                "publication_date, " +
+                "loc_id, " +
+                "longitude, " +
+                "latitude, " +
+                "request_moderation ";
 
         if (onlyAvailable != null && onlyAvailable) {
             sql = sql + "HAVING (participants_limit - COUNT(r.req_id)) > 0 ";

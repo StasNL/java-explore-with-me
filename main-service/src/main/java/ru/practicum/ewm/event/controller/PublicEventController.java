@@ -2,6 +2,7 @@ package ru.practicum.ewm.event.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.event.dto.FullEventResponse;
 import ru.practicum.ewm.event.dto.ShortEventResponse;
@@ -9,11 +10,14 @@ import ru.practicum.ewm.event.services.PublicEventService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/events")
+@Validated
 public class PublicEventController {
     private final PublicEventService eventService;
 
@@ -26,8 +30,8 @@ public class PublicEventController {
                                                  @RequestParam(required = false) String rangeEnd,
                                                  @RequestParam(required = false) Boolean onlyAvailable,
                                                  @RequestParam(required = false) String sort,
-                                                 @RequestParam(required = false, defaultValue = "0") Integer from,
-                                                 @RequestParam(required = false, defaultValue = "10") Integer size,
+                                                 @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
+                                                 @RequestParam(required = false, defaultValue = "10") @Positive Integer size,
                                                  HttpServletRequest request) {
         return eventService.getAllEvents(
                 text,
