@@ -1,12 +1,13 @@
 package ru.practicum.service;
 
-import dto.HitDto;
-import dto.StatsDto;
+import ru.practicum.dto.HitDto;
+import ru.practicum.dto.StatsDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.exceptions.BadRequestException;
 import ru.practicum.model.Hit;
 import ru.practicum.model.HitMapper;
 import ru.practicum.repository.StatsRepository;
@@ -24,16 +25,22 @@ public class StatsServiceImpl implements StatsService {
 
     @Override
     public List<StatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+
+        if (start.isAfter(end))
+            throw new BadRequestException("Неверно указаны даты начала и конца отрезка для поиска");
+
         if (unique) {
-            if (uris == null)
+            if (uris == null || uris.isEmpty())
                 return repository.getStatsBetweenStartAndEndTimeUnique(start, end);
-            else
+            else {
                 return repository.getStatsBetweenStartAndEndTimeByUriUnique(start, end, uris);
+            }
         } else {
-            if (uris == null)
+            if (uris == null || uris.isEmpty())
                 return repository.getStatsBetweenStartAndEndTime(start, end);
-            else
+            else {
                 return repository.getStatsBetweenStartAndEndTimeByUri(start, end, uris);
+            }
         }
     }
 

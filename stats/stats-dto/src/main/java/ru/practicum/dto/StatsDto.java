@@ -1,4 +1,4 @@
-package dto;
+package ru.practicum.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class StatsDto {
-    private String app;
     private String uri;
+    private String app;
     private Long hits;
 }
