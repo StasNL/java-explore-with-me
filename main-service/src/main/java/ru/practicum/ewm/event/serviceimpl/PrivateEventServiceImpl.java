@@ -16,8 +16,10 @@ import ru.practicum.ewm.event.services.PrivateEventService;
 import ru.practicum.ewm.exceptions.BadDBRequestException;
 import ru.practicum.ewm.exceptions.BadRequestException;
 import ru.practicum.ewm.exceptions.DataConflictException;
+import ru.practicum.ewm.exceptions.NotFoundException;
 import ru.practicum.ewm.request.RequestRepository;
 import ru.practicum.ewm.user.model.User;
+import ru.practicum.ewm.user.repository.UserRepository;
 import ru.practicum.ewm.user.service.AdminUserService;
 
 import java.time.LocalDateTime;
@@ -31,7 +33,6 @@ import static ru.practicum.ewm.utils.ExceptionMessages.*;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Transactional
 public class PrivateEventServiceImpl implements PrivateEventService {
 
     private final EventRepository eventRepository;
@@ -41,6 +42,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     private final LocationRepository locationRepository;
     private final EventDao eventDao;
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern(TIME_FORMAT);
+    private final UserRepository userRepository;
 
     @Override
     public FullEventResponse createEvent(Long userId, NewEventRequest newEvent) {
@@ -133,8 +135,6 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     @Transactional(readOnly = true)
     public List<ShortEventResponse> getAllEventsByUserId(Long userId, Integer from, Integer size) {
 
-
-
         return eventDao.getAllEventsByUserId(userId, from, size).stream()
                 .map(EventMapper::shortEventToShortEventResponse)
                 .collect(Collectors.toList());
@@ -147,6 +147,28 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         if (event.getInitiator().getUserId() != userId)
             throw new BadRequestException(EVENT_WRONG_INITIATOR);
         return event;
+    }
+
+    @Override
+    public void addRating(Long userId, Long eventId, Integer rating) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new BadDBRequestException(EVENT_NO_ID));
+        userRepository.findById(userId)
+                .orElseThrow(() -> new BadDBRequestException(USER_NO_ID));
+
+        if (event.getInitiator().getUserId().equals(userId)) {
+            throw new DataConflictException(ADD_RATING_TO_YUORSELF);
+        }
+
+        eventDao.addRating(userId, eventId, rating);
+        eventDao.countRating(userId, eventId);
+    }
+
+    public ShortEventResponse getEventById(Long eventId) {
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException(EVENT_NO_ID));
+        return EventMapper.shortEventToShortEventResponse(EventMapper.eventToShortEvent(event));
     }
 
     private void checkEventDate(LocalDateTime eventDate) {

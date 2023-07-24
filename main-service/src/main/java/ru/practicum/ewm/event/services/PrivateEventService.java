@@ -20,4 +20,7 @@ public interface PrivateEventService {
 
     Event checkEventByOwnerId(long userId, long eventId);
 
+    void addRating(Long userId, Long eventId, Integer rating);
+
+    ShortEventResponse getEventById(Long eventId);
 }

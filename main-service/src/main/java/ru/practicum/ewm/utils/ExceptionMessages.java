@@ -31,4 +31,5 @@ public class ExceptionMessages {
     public static final String CONFIRMED_REQUEST_LIMITS = "Достигнуто предельное количество участников мероприятия.";
     public static final String REJECT_CONFIRMED_REQUEST = "Нельзя отменить уже одобренный запрос";
     public static final String EDIT_PUBLISHED_EVENT = "Нельзя изменять опубликованное событие";
+    public static final String ADD_RATING_TO_YUORSELF = "Нельзя ставить рейтинг самому себе";
 }

@@ -54,6 +54,9 @@ public class Event {
     @OneToMany(mappedBy = "event", fetch = FetchType.EAGER)
     List<Request> requests;
 
+    @Column(name = "rating")
+    Float rating;
+
     @Override
     public String toString() {
         return "Event{" +
@@ -72,6 +75,8 @@ public class Event {
                 ", category=" + category +
                 ", location=" + location +
                 ", state=" + state +
+                ", requests=" + requests +
+                ", rating=" + rating +
                 '}';
     }
 }

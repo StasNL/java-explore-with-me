@@ -29,4 +29,5 @@ public class FullEventResponse {
     private String publishedOn;
     private Boolean requestModeration;
     private String state;
+    private Float rating;
 }

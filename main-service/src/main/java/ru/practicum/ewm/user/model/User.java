@@ -19,12 +19,16 @@ public class User {
     private String name;
     private String email;
 
+    @Column(name = "rating")
+    private Float rating;
+
     @Override
     public String toString() {
         return "User{" +
                 "userId=" + userId +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
+                ", rating=" + rating +
                 '}';
     }
 }
