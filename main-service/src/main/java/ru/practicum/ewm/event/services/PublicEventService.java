@@ -14,6 +14,7 @@ public interface PublicEventService {
                                           String rangeStart,
                                           String rangeEnd,
                                           Boolean onlyAvailable,
+                                          Integer minRating,
                                           String sort,
                                           Integer from,
                                           Integer size,

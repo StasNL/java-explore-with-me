@@ -58,6 +58,7 @@ public final class EventMapper {
                 .requestModeration(event.getRequestModeration())
                 .state(event.getState().toString())
                 .location(event.getLocation())
+                .rating(event.getRating())
                 .build();
     }
 
@@ -72,6 +73,7 @@ public final class EventMapper {
                 .paid(shortEvent.getPaid())
                 .category(shortEvent.getCategory())
                 .initiator(shortEvent.getInitiator())
+                .rating(shortEvent.getRating())
                 .build();
     }
 
@@ -92,6 +94,7 @@ public final class EventMapper {
                 .category(event.getCategory())
                 .annotation(event.getAnnotation())
                 .publicationDate(event.getPublishedOn())
+                .rating(event.getRating())
                 .build();
     }
 }

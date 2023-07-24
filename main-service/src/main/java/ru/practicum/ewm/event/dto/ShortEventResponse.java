@@ -21,4 +21,5 @@ public class ShortEventResponse {
     private String eventDate;
     private Category category;
     private String annotation;
+    private Float rating;
 }

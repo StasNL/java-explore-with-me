@@ -46,6 +46,7 @@ public class PublicEventServiceImpl implements PublicEventService {
                                                  String rangeStart,
                                                  String rangeEnd,
                                                  Boolean onlyAvailable,
+                                                 Integer minRating,
                                                  String sortBy,
                                                  Integer from,
                                                  Integer size,
@@ -71,7 +72,8 @@ public class PublicEventServiceImpl implements PublicEventService {
                 from,
                 size,
                 sortBy,
-                onlyAvailable
+                onlyAvailable,
+                minRating
         );
 
         // Учитываем просмотры
@@ -92,7 +94,8 @@ public class PublicEventServiceImpl implements PublicEventService {
                 from,
                 size,
                 sortBy,
-                onlyAvailable
+                onlyAvailable,
+                minRating
         );
 
         return EventMapper.shortEventToShortEventResponse(events);
@@ -150,11 +153,8 @@ public class PublicEventServiceImpl implements PublicEventService {
         }
 
         List<StatsDto> stats = statsClient.getStats(
-                //minPublishedDt.format(dtf),
-//                LocalDateTime.now().format(dtf),
-//
-                LocalDateTime.of(2023, 1, 1, 0, 0, 0).format(dtf),
-                LocalDateTime.of(2024, 1, 1, 0, 0, 0).format(dtf),
+                minPublishedDt.format(dtf),
+                LocalDateTime.now().format(dtf),
                 new ArrayList<>(uris.keySet()),
                 true);
 

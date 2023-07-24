@@ -16,7 +16,8 @@ public interface EventDao {
                                        Integer from,
                                        Integer size,
                                        String sortBy,
-                                       Boolean onlyAvailable);
+                                       Boolean onlyAvailable,
+                                       Integer minRating);
 
     List<ShortEvent> getAllEventsByUserId(Long initiatorId, Integer from, Integer size);
 
@@ -27,4 +28,7 @@ public interface EventDao {
     Long getConfirmedRequestsByEventId(Long eventId);
 
     void updateViews(Map<Long, Long> views);
+
+    void addRating(Long userId, Long eventId, Integer rating);
+   void countRating(Long userId, Long eventId);
 }

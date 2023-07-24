@@ -81,4 +81,14 @@ public class PrivateEventController {
 
         return requestService.getAllRequestsByUserIdAndEventId(userId, eventId);
     }
+
+    @PostMapping("/{eventId}/rating")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public ShortEventResponse addRating(@PathVariable @NotNull @Positive Long userId,
+                             @PathVariable @NotNull @Positive Long eventId,
+                             @RequestParam @NotNull Integer rating) {
+
+        eventService.addRating(userId, eventId, rating);
+        return eventService.getEventById(eventId);
+    }
 }

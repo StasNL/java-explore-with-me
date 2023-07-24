@@ -19,6 +19,7 @@ public final class UserMapper {
                 .id(user.getUserId())
                 .email(user.getEmail())
                 .name(user.getName())
+                .rating(user.getRating())
                 .build();
     }
 }

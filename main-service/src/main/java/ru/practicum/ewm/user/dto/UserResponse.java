@@ -12,4 +12,5 @@ public class UserResponse {
     Long id;
     String name;
     String email;
+    Float rating;
 }
