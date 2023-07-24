@@ -163,6 +163,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         eventDao.addRating(userId, eventId, rating);
         eventDao.countRating(userId, eventId);
     }
+
     public ShortEventResponse getEventById(Long eventId) {
 
         Event event = eventRepository.findById(eventId)

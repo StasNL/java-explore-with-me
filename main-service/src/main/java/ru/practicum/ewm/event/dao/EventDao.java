@@ -30,5 +30,6 @@ public interface EventDao {
     void updateViews(Map<Long, Long> views);
 
     void addRating(Long userId, Long eventId, Integer rating);
-   void countRating(Long userId, Long eventId);
+
+    void countRating(Long userId, Long eventId);
 }
