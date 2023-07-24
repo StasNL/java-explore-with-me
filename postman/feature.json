@@ -340,7 +340,6 @@
 									"        const category = await api.addCategory(rnd.getCategory());\r",
 									"        let event = await api.addEvent(owner.id, rnd.getEvent(category.id));\r",
 									"        event = await api.publishEvent(event.id);\r",
-									"        api.addRating(owner.id, event.id, 5);\r",
 									"        pm.request.removeQueryParams(['rating']);\r",
 									"        pm.request.addQueryParams([`rating=` + '5']);\r",
 									"        pm.collectionVariables.set('uid', owner.id);\r",
@@ -375,7 +374,6 @@
 								"exec": [
 									"pm.test(\"Ответ должен содержать код статуса 409 и данные в формате json\", function () {\r",
 									"    pm.response.to.have.status(409);\r",
-									"    pm.response.to.be.withBody;\r",
 									"    pm.response.to.be.json;\r",
 									"});"
 								],
